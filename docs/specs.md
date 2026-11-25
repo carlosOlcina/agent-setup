@@ -1,99 +1,99 @@
 # Spec Driven Development (SDD)
 
-> Este proyecto sigue un flujo Kiro-style: requirements → design → tasks → code.
-> El código no se escribe hasta que el spec está aprobado por un humano.
+> This repository follows a Kiro-style workflow: requirements → design → tasks → code.
+> No implementation code is written until the specification is approved by a human.
 
-## Estructura
+## Structure
 
-Cada feature nueva (`"sdd": true` en `feature_list.json`) tiene una carpeta
-dedicada en cuanto deja `pending`:
+Every new feature with `"sdd": true` in `feature_list.json` receives a dedicated
+folder as soon as it leaves `pending`:
 
 ```text
 specs/<feature-name>/
-├── requirements.md   # QUÉ se necesita (EARS notation)
-├── design.md         # CÓMO se construirá (decisiones técnicas)
-└── tasks.md          # PASOS concretos a implementar
+├── requirements.md   # WHAT is needed (strict English EARS notation)
+├── design.md         # HOW it will be built (technical decisions)
+└── tasks.md          # Concrete ordered implementation checklist
 ```
 
-El `feature-name` coincide con el campo `name` de `feature_list.json`.
+The `<feature-name>` matches the `name` field in `feature_list.json`. All three
+spec files are authored strictly in **English**.
 
-## Estados de una feature
+## Feature Statuses
 
-| Estado | Significado |
+| Status | Meaning |
 |---|---|
-| `pending` | Sin spec. El `spec_author` es el primero en actuar. |
-| `spec_ready` | Spec redactado. Esperando aprobación humana. NO se toca código. |
-| `in_progress` | Spec aprobado. `implementer`/`reviewer` trabajando, o pendiente del OK humano. |
-| `done` | Verificación verde, `reviewer` aprobó, humano aceptó y se cerró con PR. |
-| `blocked` | Atascado. Razón documentada en `progress/current.md`. |
+| `pending` | No spec yet. `spec_author` acts first. |
+| `spec_ready` | Spec drafted. Waiting for human approval. DO NOT touch code. |
+| `in_progress` | Spec approved. `implementer`/`reviewer` working, or waiting for human acceptance. |
+| `done` | Verification green, `reviewer` approved, human accepted, and closed via PR. |
+| `blocked` | Stuck. Reason documented in `progress/current.md`. |
 
-## Las puertas de aprobación humana
+## Human Approval Gates
 
-El flujo automático se detiene **dos veces**:
+The automated workflow pauses **twice**:
 
-1. **Aprobación del spec.** Cuando el `spec_author` termina sus tres
-   archivos, marca la feature como `spec_ready` y para. El humano lee
-   `specs/<feature>/` y dice "aprobado" (o pide cambios).
-2. **Aceptación tras el reviewer.** Cuando el `reviewer` da `APPROVED`
-   (`progress/review_<feature>.md`), el `leader` presenta el veredicto y
-   pregunta si todo está OK o se quiere modificar algo. Si se piden
-   cambios, se ajusta la feature (`implementer`/`reviewer`, o `spec_author` +
-   nueva aprobación del spec si cambia el alcance) y se repite la
-   revisión. Solo con el OK humano el `implementer` marca `done`.
+1. **Spec approval.** When `spec_author` finishes all three spec files, it marks the
+   feature `spec_ready` and stops. The human reads `specs/<feature>/` and replies
+   "approved" (or requests revisions).
+2. **Acceptance after review.** When `reviewer` issues `APPROVED`
+   (`progress/review_<feature>.md`), `leader` presents the verdict and asks whether
+   everything is OK or changes are requested. If changes are requested, the feature
+   is adjusted (`implementer`/`reviewer` if in scope, or `spec_author` + fresh spec
+   approval if scope changes) and reviewed again. Only after human sign-off does
+   `implementer` mark the feature `done`.
 
-Tras el OK humano, el `leader` lanza al `commiter`, que crea la rama
-`feat/<name>`, hace commits atómicos, push y abre la PR contra `main`
-(deja el resumen en `progress/pr_<feature>.md`).
+After human sign-off, `leader` invokes `commiter` to create branch `feat/<name>`,
+create atomic commits, push, and open a PR against `main` (recording the summary
+in `progress/pr_<feature>.md`).
 
 ```text
-pending → [spec_author] → spec_ready → ⏸ HUMANO APRUEBA → in_progress
-       → [implementer → reviewer] → ⏸ HUMANO ACEPTA
+pending → [spec_author] → spec_ready → ⏸ HUMAN APPROVES → in_progress
+       → [implementer → reviewer] → ⏸ HUMAN ACCEPTS
        → [implementer: done] → [commiter: commits + PR]
 ```
 
-## requirements.md — EARS estricto
+## `requirements.md` — Strict English EARS
 
-Las requirements se redactan en **EARS** (Easy Approach to Requirements
-Syntax). Cada requirement es un párrafo numerado con uno de estos cinco
-patrones:
+Requirements are written strictly in English using **EARS** (Easy Approach to
+Requirements Syntax). Every requirement is a numbered item using one of these
+five patterns:
 
-| Patrón | Plantilla |
+| Pattern | Template |
 |---|---|
-| **Ubicuo** | `El sistema DEBE <acción>.` |
-| **Evento** | `CUANDO <disparador>, el sistema DEBE <acción>.` |
-| **Estado** | `MIENTRAS <estado>, el sistema DEBE <acción>.` |
-| **Opcional** | `DONDE <feature opcional>, el sistema DEBE <acción>.` |
-| **No deseado** | `SI <evento no deseado> ENTONCES el sistema DEBE <acción>.` |
+| **Ubiquitous** | `The system SHALL <action>.` (or `The system SHALL NOT <action>.`) |
+| **Event-driven** | `WHEN <trigger>, the system SHALL <action>.` |
+| **State-driven** | `WHILE <state>, the system SHALL <action>.` |
+| **Optional** | `WHERE <optional feature>, the system SHALL <action>.` |
+| **Unwanted** | `IF <unwanted condition>, THEN the system SHALL <action>.` |
 
-Reglas duras:
+Hard rules:
 
-- Cada requirement tiene un id estable: `R1`, `R2`, ...
-- Cada requirement DEBE ser verificable por al menos un test concreto.
-- No mezcles varios `DEBE` en un mismo requirement. Si hay más de uno, parte.
-- No uses verbos blandos ("podría", "puede", "soporta"). Solo `DEBE` / `NO DEBE`.
+- Each requirement has a sequential, stable ID: `R1`, `R2`, ...
+- Each requirement must be verifiable by at least one concrete automated test.
+- Never combine multiple `SHALL` clauses in one requirement. Split into separate IDs instead.
+- Never use weak or ambiguous verbs (`can`, `could`, `may`, `might`, `should`, `support`, `supports`). Use only `SHALL` or `SHALL NOT`.
 
-## design.md — decisiones técnicas
+## `design.md` — Technical Decisions
 
-Captura **antes** de tocar código:
+Captured **before** touching code:
 
-- Qué archivos se crean o modifican.
-- Qué firmas, contratos o tipos nuevos aparecen (funciones, clases, endpoints, componentes).
-- Qué errores o excepciones se reutilizan o añaden.
-- Qué alternativa se descartó y por qué (mínimo una).
+- Affected files to create, modify, or delete.
+- New public signatures, contracts, schemas, or types.
+- Errors or exceptions reused or introduced.
+- At least one discarded alternative and the technical reason for rejecting it.
 
-NO es ingeniería desde primeros principios — apóyate en
-`docs/architecture.md` y `docs/conventions.md`.
+Do not reinvent fundamentals — build on `docs/architecture.md` and `docs/conventions.md`.
 
-## tasks.md — checklist ejecutable
+## `tasks.md` — Executable Checklist
 
-Pasos discretos en orden, cada uno con checkbox (`- [ ] T1 ...`). Cada task
-referencia al menos un `R<n>` que cubre.
+Discrete ordered steps, each with a checkbox (`- [ ] T1 ...`). Every task references
+at least one `R<n>` that it covers, and together `T1..Tm` cover every `R1..Rn`.
 
-El `implementer` marca `[x]` cada task al completarla. El `reviewer`
-rechaza si queda alguna `[ ]` sin justificación documentada.
+`implementer` checks off `[x]` each task upon completion. `reviewer` rejects if any
+`[ ]` remains without a valid documented justification in `progress/impl_<name>.md`.
 
-## Trazabilidad (regla dura)
+## Traceability (Hard Rule)
 
-- Cada test añadido o modificado para la feature debe poder mapearse a un `R<n>` de su spec.
-- Cada `R<n>` debe tener al menos un test concreto en la suite de tests del proyecto.
-- El `reviewer` comprueba esta correspondencia explícitamente y rechaza si falta.
+- Every test added or updated for the feature maps to an `R<n>` in its spec.
+- Every `R<n>` has at least one concrete test in the project's automated test suite.
+- `reviewer` explicitly verifies this mapping and rejects the feature if any gap exists.

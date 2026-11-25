@@ -13,95 +13,92 @@ This block is written and re-added by `turbo` before repository-scoped commands 
 
 # Harness Engineering — Spec Driven Development
 
-> Este archivo es el **punto de entrada** para cualquier agente que trabaje en este
-> repositorio. NO es una biblia de reglas: es un **mapa**. Lee solo lo que
-> necesites cuando lo necesites (divulgación progresiva).
+> This file is the **entry point** for any agent working in this repository.
+> It is NOT a wall of rules: it is a **map**. Read only what you need when
+> you need it (progressive disclosure).
 
-## 1. Antes de empezar (obligatorio)
+## 1. Before You Start (Mandatory)
 
-1. Ejecuta los comandos de verificación base definidos en `docs/verification.md` (lint y typecheck) para comprobar el estado del repositorio.
-2. Lee `progress/current.md` para entender en qué estado quedó la última sesión.
-3. Lee `feature_list.json`. Toda feature nueva (`"sdd": true`) pasa por **Spec Driven Development** — ver `docs/specs.md` y §4.
-4. Lee `docs/specs.md` antes de redactar o implementar cualquier spec o feature `"sdd": true`.
+1. Run the baseline verification commands defined in `docs/verification.md` to confirm repository health.
+2. Read `progress/current.md` to understand where the previous session left off.
+3. Read `feature_list.json`. Every new feature with `"sdd": true` follows **Spec Driven Development** — see `docs/specs.md` and §4.
+4. Read `docs/specs.md` before authoring or implementing any spec or feature with `"sdd": true`.
 
-## 2. Mapa del repositorio
+## 2. Repository Map
 
-| Archivo / carpeta | Qué contiene | Cuándo leerlo |
+| File / Directory | Purpose | When to Read |
 |---|---|---|
-| `feature_list.json` | Lista de tareas con estado (`pending` / `spec_ready` / `in_progress` / `done` / `blocked`) | Siempre, al empezar |
-| `progress/current.md` | Estado de la sesión actual | Siempre, al empezar |
-| `progress/history.md` | Bitácora append-only de sesiones anteriores | Si necesitas contexto histórico |
-| `specs/<feature>/` | `requirements.md` + `design.md` + `tasks.md` (Kiro-style) | Antes de implementar cualquier feature `"sdd": true` |
-| `docs/architecture.md` | Arquitectura del proyecto, rutas reales de apps/packages y criterios de calidad | Antes de diseñar o implementar |
-| `docs/conventions.md` | Convenciones de estilo, nombres, estructura y tests | Antes de escribir código |
-| `docs/specs.md` | Proceso SDD: notación EARS, los 3 archivos, puertas humanas y cierre con PR | Antes de redactar o revisar un spec |
-| `docs/verification.md` | Comandos exactos de verificación y trazabilidad de requirements | Antes de declarar una tarea como `done` |
-| `CHECKPOINTS.md` | Criterios objetivos C1–C6 de estado final correcto | Para autoevaluar y revisar |
-| `.agents/agents/` | Subagentes para Antigravity (`leader`, `spec_author`, `implementer`, `reviewer`, `commiter`, `secure-auditer`, `skill-generator`) | Si orquestas trabajo en Antigravity |
-| `.codex/config.toml` y `.codex/agents/` | Configuración y subagentes para OpenAI Codex | Si orquestas trabajo en Codex |
-| `.claude/agents/` y `CLAUDE.md` | Configuración, memoria e import para Claude Code | Si orquestas trabajo en Claude Code |
-| `.agents/skills/` | Skills reutilizables compartidos del repositorio | Antes de tocar un dominio cubierto por una skill |
+| `feature_list.json` | Task backlog with status (`pending` / `spec_ready` / `in_progress` / `done` / `blocked`) | Always, at session start |
+| `progress/current.md` | Live state of the active session | Always, at session start |
+| `progress/history.md` | Append-only log of closed sessions | When historical context is needed |
+| `specs/<feature>/` | `requirements.md` + `design.md` + `tasks.md` (Kiro-style) | Before implementing any `"sdd": true` feature |
+| `docs/architecture.md` | Project architecture, module/layer layout, and quality standards | Before designing or implementing |
+| `docs/conventions.md` | Style, naming, structure, error-handling, and testing conventions | Before writing code |
+| `docs/specs.md` | SDD workflow: strict English EARS notation, the 3 spec files, human gates, and PR closeout | Before authoring or reviewing a spec |
+| `docs/verification.md` | Exact verification commands and requirement traceability rules | Before declaring any task `done` |
+| `CHECKPOINTS.md` | Objective C1–C6 criteria for a healthy final state | For self-check and review |
+| `.agents/agents/` | Antigravity subagents (`leader`, `spec_author`, `implementer`, `reviewer`, `commiter`) | When orchestrating work in Antigravity |
+| `.codex/config.toml` and `.codex/agents/` | OpenAI Codex multi-agent configuration and subagents | When orchestrating work in Codex |
+| `.claude/agents/` and `CLAUDE.md` | Claude Code subagent configuration and entry import | When orchestrating work in Claude Code |
 
-Consulta `docs/architecture.md` para ver la estructura concreta de aplicaciones, paquetes y capas de este proyecto.
+Consult `docs/architecture.md` for the concrete module, package, and layer layout of this project.
 
-## 3. Reglas duras (no negociables)
+## 3. Hard Rules (Non-Negotiable)
 
-- **Una sola feature a la vez.** No mezcles cambios de varias tareas en la misma sesión.
-- **No declares una tarea `done` sin verificación verde.** Ejecuta todos los comandos obligatorios de `docs/verification.md` y asegúrate de que pasan.
-- **No saltes la fase de spec.** Toda feature con `"sdd": true` debe pasar por `spec_author` y obtener aprobación humana antes de tocar código.
-- **No saltes las puertas de aprobación humana.** El `leader` detiene el flujo en `spec_ready` (aprobación del spec) y tras el `APPROVED` del `reviewer` (aceptación de la feature), y espera.
-- **No cierres una feature sin commits atómicos y PR.** Tras el OK humano, el `leader` lanza al `commiter`, que crea la rama `feat/<name>`, hace commits atómicos, push y abre la PR contra `main`.
-- **Documenta lo que haces** en `progress/current.md` en tiempo real mientras trabajas, no al final.
-- **Deja el repositorio limpio** antes de cerrar la sesión (ver §5).
-- **Si no sabes algo, busca en `docs/`** antes de inventarlo.
+- **One feature at a time.** Never mix changes from multiple features in the same session.
+- **Never declare a task `done` without green verification.** Run every mandatory command in `docs/verification.md` and confirm all pass.
+- **Never skip the spec phase.** Every feature with `"sdd": true` must go through `spec_author` and receive human approval before any code is touched.
+- **Never bypass the human approval gates.** The `leader` stops at `spec_ready` (spec approval) and after `reviewer` `APPROVED` (feature acceptance), and waits for the human.
+- **Never close a feature without atomic commits and a PR.** After human sign-off, the `leader` invokes `commiter` to create `feat/<name>`, make atomic commits, push, and open a PR against `main`.
+- **Document as you work** in `progress/current.md` in real time, not after finishing.
+- **Leave the repository clean** before closing the session (see §5).
+- **If you are unsure, read `docs/`** instead of guessing.
 
-## 4. Flujo de trabajo (SDD)
+## 4. Workflow (SDD)
 
 ```text
-pending → [spec_author] → spec_ready → ⏸ HUMANO APRUEBA → in_progress
-       → [implementer → reviewer] → ⏸ HUMANO ACEPTA
+pending → [spec_author] → spec_ready → ⏸ HUMAN APPROVES → in_progress
+       → [implementer → reviewer] → ⏸ HUMAN ACCEPTS
        → [implementer: done] → [commiter: commits + PR]
 ```
 
-1. El `leader` detecta la primera feature `pending` con `"sdd": true` (o coordina según el estado en `feature_list.json`).
-2. El `leader` lanza `spec_author`, que crea `specs/<name>/{requirements,design,tasks}.md` y marca el estado como `spec_ready`.
-3. **Pausa.** El humano lee `specs/<name>/` y aprueba (o pide cambios).
-4. Una vez aprobado, el `leader` cambia el estado a `in_progress` y lanza `implementer`.
-5. El `implementer` ejecuta `tasks.md` en orden, marcando `[x]` cada task completada.
-6. El `reviewer` verifica la trazabilidad `R<n>` ↔ tests, las tasks completas y `CHECKPOINTS.md`; aprueba o rechaza. Si rechaza, el `leader` relanza al `implementer` con el feedback y repite el ciclo.
-7. Si aprueba, **pausa de nuevo**: el `leader` presenta el veredicto y pregunta al humano si todo está OK o quiere modificar algo. Si pide cambios, se ajusta la feature (`implementer` dentro del spec, o `spec_author` + nueva aprobación si cambia el alcance) y se repite el paso 6.
-8. Con el OK humano, el `implementer` marca `done` y mueve el resumen a `progress/history.md`.
-9. El `leader` lanza al `commiter`, que crea la rama `feat/<name>`, hace commits atómicos, push y abre la PR contra `main` (`progress/pr_<name>.md`).
+1. `leader` locates the first `pending` feature with `"sdd": true` (or coordinates based on current state in `feature_list.json`).
+2. `leader` invokes `spec_author`, who creates `specs/<name>/{requirements,design,tasks}.md` in English and transitions status to `spec_ready`.
+3. **Pause.** The human reviews `specs/<name>/` and approves (or requests revisions).
+4. Once approved, `leader` changes status to `in_progress` and invokes `implementer`.
+5. `implementer` executes `tasks.md` in order, checking off `[x]` each completed task.
+6. `reviewer` verifies `R<n>` ↔ test traceability, completed tasks, verification commands, and `CHECKPOINTS.md`; issues `APPROVED` or `CHANGES_REQUESTED`. On rejection, `leader` re-invokes `implementer` with concrete feedback and repeats the review loop.
+7. Upon `APPROVED`, **pause again**: `leader` summarizes the verdict and asks the human whether everything is acceptable or changes are needed. If changes are requested, adjust via `implementer` (in-scope) or `spec_author` + re-approval (scope change) and repeat step 6.
+8. After human sign-off, `implementer` marks the feature `done` and appends the session summary to `progress/history.md`.
+9. `leader` invokes `commiter` to create `feat/<name>`, make atomic commits, push, and open the PR against `main` (`progress/pr_<name>.md`).
 
-Además del ciclo SDD principal, el `leader` o el usuario pueden invocar bajo demanda a `secure-auditer` (auditoría de seguridad en solo lectura) y `skill-generator` (creación de nuevas skills). Los subagentes comunican artefactos por archivo (`specs/<name>/`, `progress/*.md`), no volcando diffs o specs largos en chat.
+Subagents exchange artifacts via files on disk (`specs/<name>/`, `progress/*.md`) rather than dumping long specs or diffs into chat.
 
-## 5. Cierre de sesión (lifecycle)
+## 5. Session Close (Lifecycle)
 
-Antes de terminar:
+Before finishing a session:
 
-1. Ejecuta todos los comandos de verificación obligatorios de `docs/verification.md` — todo verde.
-2. Si la tarea está acabada y el humano ha dado el OK: el `implementer` marca `status: "done"` en `feature_list.json` y el `leader` lanza al `commiter` para rama `feat/<name>`, commits atómicos, push y PR contra `main`.
-3. Mueve el resumen de `progress/current.md` al final de `progress/history.md`.
-4. Vacía `progress/current.md` dejando solo la plantilla.
-5. No dejes archivos temporales, ni `console.log()` de debug, ni TODOs sin contexto.
+1. Run all mandatory verification commands from `docs/verification.md` — all green.
+2. If the feature is complete and human sign-off has been granted: `implementer` sets `"status": "done"` in `feature_list.json`, and `leader` invokes `commiter` for branch `feat/<name>`, atomic commits, push, and PR against `main`.
+3. Append the session summary from `progress/current.md` to the end of `progress/history.md`.
+4. Reset `progress/current.md` to its empty template.
+5. Leave no temporary files, debug logs, or untracked TODOs behind.
 
-## 6. Si te bloqueas
+## 6. If You Get Blocked
 
-- Relee la sección relevante de `docs/`.
-- Si una herramienta o verificación falla de forma inesperada, **no inventes un workaround silencioso**: documenta el bloqueo en `progress/current.md` (y marca `blocked` si corresponde) y para la sesión.
+- Re-read the relevant section of `docs/`.
+- If a tool or verification check fails unexpectedly, **never invent a silent workaround**: document the blocker in `progress/current.md` (and mark `"status": "blocked"` if appropriate) and stop the session.
 
-## 7. Reglas generales de ingeniería y estilo
+## 7. General Engineering and Style Rules
 
-- Usa siempre **inglés** en código, identificadores, comentarios y mensajes de commit.
-- Prioriza la simplicidad sobre la complejidad (KISS), evita duplicación (DRY) y aplica SOLID cuando aporte claridad.
-- Escribe código autoexplicativo; evita comentarios innecesarios que repitan qué hace el código.
-- Usa nombres descriptivos para variables, funciones, clases y archivos; evita abreviaturas salvo las estándar.
-- Mantén funciones pequeñas con una única responsabilidad y evita números o cadenas mágicas (usa constantes).
-- Respeta el formateo (Prettier) y las reglas de linting del proyecto sin deshabilitarlas sin justificación.
-- No introduzcas dependencias nuevas sin beneficio claro; reutiliza utilidades y componentes existentes antes de crear otros nuevos.
-- Prefiere composición frente a herencia, elimina código muerto o comentado y evita optimizaciones prematuras.
-- Maneja errores de forma explícita y consistente; no asumas valores nulos o indefinidos sin validar.
-- Usa tipado fuerte y explícito (evita `any`, prefiere `unknown` cuando el tipo no pueda determinarse con seguridad).
-- No modifiques archivos no relacionados con la tarea ni cambies APIs públicas sin justificación; entrega soluciones completas sin TODOs pendientes.
-- Antes de empezar a trabajar en una tarea, carga todas las skills relevantes disponibles en `.agents/skills/` (o `.claude/skills/`).
-
+- Always use **English** in code, identifiers, comments, SDD templates, specs, and commit messages.
+- Favor simplicity over complexity (KISS), eliminate duplication (DRY), and apply SOLID where it improves clarity.
+- Write self-explanatory code; avoid redundant comments that merely restate what the code does.
+- Use descriptive names for variables, functions, classes, and files; avoid non-standard abbreviations.
+- Keep functions small with a single responsibility and extract magic numbers or strings into named constants.
+- Respect formatting and static-analysis rules defined in `docs/conventions.md` and `docs/verification.md` without disabling them unless explicitly justified.
+- Avoid adding external dependencies without a clear benefit; reuse existing modules and utilities first.
+- Prefer composition over inheritance, remove dead or commented-out code, and avoid premature optimization.
+- Handle errors explicitly and consistently; never assume nullable or missing values without validation.
+- Use the strictest typing and contract enforcement available in the project language; avoid unsafe wildcard types.
+- Do not modify files unrelated to the active feature or break public APIs without justification; deliver complete solutions without unresolved TODOs.

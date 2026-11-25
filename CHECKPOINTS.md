@@ -1,56 +1,56 @@
-# CHECKPOINTS — Evaluación del estado final
+# CHECKPOINTS — Final State Evaluation
 
-> En sistemas multi-agente no se evalúa el camino, se evalúa el destino.
-> Estos son los checkpoints objetivos que un juez (humano o IA) puede usar
-> para decidir si el proyecto está sano.
+> In multi-agent systems, you do not grade the path — you grade the destination.
+> These are the objective checkpoints a judge (human or AI) uses to decide
+> whether the repository is healthy.
 
-## C1 — El arnés está completo
+## C1 — The Harness Is Complete
 
-- [ ] Existen los archivos base: `AGENTS.md`, `CLAUDE.md`, `feature_list.json`,
+- [ ] Base harness files exist: `AGENTS.md`, `CLAUDE.md`, `feature_list.json`,
       `progress/current.md`, `progress/history.md`.
-- [ ] Existen los 4 docs: `docs/architecture.md`, `docs/conventions.md`,
+- [ ] All four core docs exist: `docs/architecture.md`, `docs/conventions.md`,
       `docs/specs.md`, `docs/verification.md`.
-- [ ] Los comandos de lint configurados en `docs/verification.md` terminan sin errores.
+- [ ] Static-analysis and lint commands configured in `docs/verification.md` pass with zero errors.
 
-## C2 — El estado es coherente
+## C2 — State Is Coherent
 
-- [ ] Como mucho una feature en `in_progress` en `feature_list.json`.
-- [ ] Toda feature `done` tiene tests asociados que pasan (según `docs/verification.md`).
-- [ ] `progress/current.md` está en plantilla vacía o describe únicamente la sesión activa
-      (no contiene restos de sesiones anteriores).
+- [ ] At most one feature is in `in_progress` in `feature_list.json`.
+- [ ] Every `done` feature has associated automated tests that pass (per `docs/verification.md`).
+- [ ] `progress/current.md` is either reset to its empty template or describes only the active session
+      (no leftover artifacts from prior sessions).
 
-## C3 — El código respeta la arquitectura
+## C3 — Code Respects Architecture
 
-- [ ] El código respeta la estructura, límites entre capas/paquetes y dependencias
-      definidas en `docs/architecture.md`.
-- [ ] El código sigue las convenciones de estilo, nombres y errores de `docs/conventions.md`.
-- [ ] No hay dependencias circulares, `console.log()` de debug ni TODOs sin contexto.
+- [ ] Code respects the structure, layer/module boundaries, and dependency rules
+      defined in `docs/architecture.md`.
+- [ ] Code follows the style, naming, typing, and error-handling conventions in `docs/conventions.md`.
+- [ ] There are no circular dependencies, debug logs, or contextless TODOs.
 
-## C4 — La verificación es real
+## C4 — Verification Is Real
 
-- [ ] Existen tests unitarios y/o de integración para los módulos o componentes añadidos o modificados.
-- [ ] Todos los comandos obligatorios de `docs/verification.md` (lint, typecheck, tests y build cuando aplique) pasan en verde.
+- [ ] Unit and/or integration tests exist for added or modified modules and behaviors.
+- [ ] Every mandatory command in `docs/verification.md` passes cleanly.
 
-## C5 — La sesión se cerró bien
+## C5 — Session Closed Cleanly
 
-- [ ] No hay archivos sin trackear sospechosos (`*.tmp`, artefactos temporales o secretos sin ignorar).
-- [ ] `progress/history.md` tiene una entrada para la última sesión cerrada.
-- [ ] La última feature trabajada está reflejada con su estado correcto en `feature_list.json`.
-- [ ] Si se cerró la feature tras aceptación humana, la PR y commits quedaron registrados en `progress/pr_<name>.md`.
+- [ ] No suspicious untracked files (`*.tmp`, temporary artifacts, or unignored secrets).
+- [ ] `progress/history.md` contains an entry for the last closed session.
+- [ ] The last worked feature reflects its accurate status in `feature_list.json`.
+- [ ] Once closed after human sign-off, commits and PR URL are recorded in `progress/pr_<name>.md`.
 
 ## C6 — Spec Driven Development
 
-- [ ] Toda feature con `"sdd": true` en estado `spec_ready`, `in_progress`
-      o `done` tiene su carpeta `specs/<name>/` con los 3 archivos:
-      `requirements.md`, `design.md`, `tasks.md`.
-- [ ] `requirements.md` usa EARS estricto (ver `docs/specs.md`).
-- [ ] Toda feature `done` con `"sdd": true` tiene todas sus tasks marcadas
-      `[x]` en `tasks.md` (o desviación justificada documentada en `progress/impl_<name>.md`).
-- [ ] Cada `R<n>` de `requirements.md` está cubierto por al menos un test
-      concreto en la suite del proyecto.
+- [ ] Every `"sdd": true` feature in `spec_ready`, `in_progress`, or `done` status
+      has its `specs/<name>/` folder containing all three English spec files:
+      `requirements.md`, `design.md`, and `tasks.md`.
+- [ ] `requirements.md` uses strict English EARS notation (`SHALL` / `SHALL NOT`, see `docs/specs.md`).
+- [ ] Every `done` feature with `"sdd": true` has all tasks checked `[x]` in `tasks.md`
+      (or an explicit documented deviation in `progress/impl_<name>.md`).
+- [ ] Every `R<n>` in `requirements.md` is covered by at least one concrete automated test
+      in the project test suite.
 
 ---
 
-**Cómo usar este archivo:** el agente revisor (`reviewer`) recorre cada checkbox,
-marca `[x]` o `[ ]` en `progress/review_<name>.md`, y rechaza el cierre de sesión
-si quedan requisitos incumplidos en C1–C6.
+**How to use this file:** the `reviewer` agent evaluates every checkbox,
+marks `[x]` or `[ ]` in `progress/review_<name>.md`, and rejects session closeout
+if any criterion in C1–C6 fails.

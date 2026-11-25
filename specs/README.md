@@ -1,12 +1,13 @@
 # Specs (Spec Driven Development)
 
-Cada feature nueva marcada con `"sdd": true` en `feature_list.json` genera aquí su carpeta:
+Every new feature marked with `"sdd": true` in `feature_list.json` creates its
+English specification directory here:
 
 ```text
 specs/<feature-name>/
-├── requirements.md   # Requisitos en notación EARS (R1, R2, ...)
-├── design.md         # Decisiones técnicas y archivos afectados
-└── tasks.md          # Checklist ejecutable trazable a R<n>
+├── requirements.md   # Requirements in strict English EARS notation (R1, R2, ...)
+├── design.md         # Technical decisions and affected files
+└── tasks.md          # Executable checklist traceable to R<n>
 ```
 
-Consulta `docs/specs.md` antes de redactar o implementar cualquier spec.
+Consult `docs/specs.md` before authoring or implementing any spec.
