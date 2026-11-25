@@ -1,0 +1,36 @@
+{
+  "project": "Olcina-IA",
+  "description": "Configuration and base template for the English multi-agent Spec Driven Development (SDD) harness.",
+  "rules": {
+    "one_feature_at_a_time": true,
+    "require_tests_to_close": true,
+    "require_approved_spec_to_implement": true,
+    "valid_status": [
+      "pending",
+      "spec_ready",
+      "in_progress",
+      "done",
+      "blocked"
+    ],
+    "sdd_required_when": "feature has \"sdd\": true"
+  },
+  "features": [
+    {
+      "name": "agent-conf",
+      "title": "Generalized English SDD architecture package and stack-agnostic validation layer in packages/agent-conf",
+      "description": "Extract and generalize the pure Spec Driven Development (SDD) model into packages/agent-conf as a static template package and read-only validation library/CLI (without init/update commands or skills). It must include exclusively the 5 pure SDD agents (leader, spec_author, implementer, reviewer, commiter) in dot-free platform folders (agents/, claude/, codex/), fully generalized English system prompts, English SDD docs/templates, and English EARS specs decoupled from any target stack, an agnostic validation layer enforcing English EARS specs and harness contracts across heterogeneous projects, automated workspace tests, and synced English dogfooding at the root of Olcina-IA.",
+      "sdd": true,
+      "status": "done",
+      "acceptance_criteria": [
+        "Create packages/agent-conf as a static SDD template package + read-only validation library/script without init/update installation CLI commands.",
+        "Include exclusively the 5 pure SDD workflow agents (leader, spec_author, implementer, reviewer, commiter), removing any dependency or reference to skills, secure-auditer, or skill-generator in the generalized SDD model.",
+        "Organize agent platform configurations inside packages/agent-conf in dot-free directories: agents/ (Antigravity), claude/ (Claude Code), and codex/ (OpenAI Codex), along with base SDD templates (AGENTS.md, CLAUDE.md, CHECKPOINTS.md, docs/, feature_list.json, progress/, specs/).",
+        "Author all SDD system prompts, core harness templates, adapter templates, and specs strictly in English, using standard English EARS syntax (SHALL / SHALL NOT; Ubiquitous, WHEN, WHILE, WHERE, IF ... THEN; rejecting weak verbs such as can, could, may, might, should, support/supports).",
+        "Fully generalize prompts, rules, and SDD templates so they do not depend on any project-specific stack or tooling (no Turborepo, pnpm, Next.js, TypeScript, Vercel, etc.), delegating project specifics to the validated adapter layer (docs/architecture.md, docs/conventions.md, docs/verification.md).",
+        "Provide an agnostic validation layer (exported library + read-only CLI executable) capable of validating both source templates in packages/agent-conf and any heterogeneous consumer project (.agents, .claude, .codex): harness file structure, adapter docs contract without unresolved placeholders or empty commands, syntax/tool restrictions/parity of the 5 pure SDD agents without skills, English EARS spec validation, and feature_list.json invariants.",
+        "Configure automated test execution in the workspace (pnpm test in root package.json and turbo.json) with full happy-path and error-path test coverage for the validation layer and packages/agent-conf templates.",
+        "Apply dogfooding in Olcina-IA: packages/agent-conf is the single source of truth, and the Olcina-IA root syncs the English SDD harness and 5 pure SDD agents (preserving Turborepo managed block in AGENTS.md), updates root docs/ in English including docs/architecture.md, docs/conventions.md, docs/specs.md, and docs/verification.md, and passes agnostic validation with canonical parity."
+      ]
+    }
+  ]
+}
