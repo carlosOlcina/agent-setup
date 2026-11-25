@@ -1,64 +1,62 @@
-# Verificación — Cómo demostrar que el trabajo funciona
+# Verification — Proving the Work Functions
 
-> Regla de oro: **el agente no dice "funciona", lo demuestra**.
-> Toda feature termina con evidencia ejecutable, no con afirmaciones.
-> Este archivo es la fuente única de verdad para los comandos de verificación del proyecto.
+> Golden rule: **an agent never claims "it works" — it proves it**.
+> Every feature ends with executable evidence, never bare assertions.
+> This file is the single source of truth for the project's verification commands.
 
-## Comandos del proyecto (`Olcina-IA`)
+## Project Commands (`Olcina-IA`)
 
-| Verificación | Comando | Estado en el template inicial |
+| Check | Command | Status |
 |---|---|---|
-| **Lint** | `pnpm lint` (`turbo run lint`) | Obligatorio, activo (`eslint --max-warnings 0`) |
-| **Typecheck** | `pnpm check-types` (`turbo run check-types`) | Obligatorio, activo (`next typegen && tsc --noEmit`) |
-| **Build** | `pnpm build` (`turbo run build`) | Obligatorio cuando se modifiquen rutas, configs o bundling |
-| **Tests** | `pnpm test` (`turbo run test`) | **Pendiente de configurar** en el starter base (ver nota abajo) |
+| **Lint** | `pnpm lint` (`turbo run lint`) | Mandatory, active (`eslint --max-warnings 0`) |
+| **Typecheck** | `pnpm check-types` (`turbo run check-types`) | Mandatory, active (`tsc --noEmit` / `next typegen`) |
+| **Tests** | `pnpm test` (`turbo run test`) | Mandatory, active (`node --test` in `@repo/agent-conf`) |
+| **Build** | `pnpm build` (`turbo run build`) | Mandatory when modifying routes, configs, or bundling |
 
-> **Nota sobre tests en el starter base:** el `package.json` raíz y `turbo.json` iniciales todavía no incluyen una tarea `test` ni un runner (Vitest/Jest/Playwright). Al añadir la primera feature con lógica testeable o una tarea específica de infraestructura de tests, se debe configurar el runner, añadir el script `"test"` al `package.json` y `turbo.json`, y actualizar esta tabla. **Nunca** afirmes que los tests pasan si no existe runner configurado o si no se ejecutaron tras tu última edición.
+> **Note on tests and harness validation:** `pnpm test` runs `turbo run test` (with `"dependsOn": ["build", "^build"]` in `turbo.json`), executing the native `node --test` (Node >= 24) test suite in `packages/agent-conf`, including full `project`-mode canonical validation of `Olcina-IA` against the source of truth in `packages/agent-conf`.
 
-## Niveles de verificación
+## Verification Levels
 
-### Nivel 1 — Tests unitarios e integración (obligatorio)
+### Level 1 — Unit and Integration Tests (Mandatory)
 
-Toda función pública nueva, hook o componente con lógica debe tener al menos un test que:
-1. Cubra el camino feliz y verifique el resultado concreto.
-2. Cubra al menos un camino de error o caso borde relevante.
+Every new public function, hook, or module with logic must have at least one test that:
+1. Covers the happy path and asserts the concrete expected outcome.
+2. Covers at least one relevant error path or edge case.
 
 ```bash
 pnpm test
 ```
 
-### Nivel 2 — Lint y Typecheck (obligatorio)
+### Level 2 — Lint and Typecheck (Mandatory)
 
 ```bash
 pnpm lint
 pnpm check-types
 ```
 
-Deben terminar con `0` errores y `0` warnings (`--max-warnings 0`).
+Both must finish with `0` errors and `0` warnings (`--max-warnings 0`).
 
-### Nivel 3 — Build (cuando aplique o antes de cierre de release)
+### Level 3 — Build (When Applicable or Before Release)
 
 ```bash
 pnpm build
 ```
 
-### Nivel 4 — Trazabilidad de requirements (obligatorio para features con `"sdd": true`)
+### Level 4 — Requirement Traceability (Mandatory for `"sdd": true`)
 
-Cada `R<n>` de `specs/<name>/requirements.md` debe poder mapearse a al menos un test concreto en la suite del proyecto. El `reviewer` rechaza la feature si falta cobertura.
+Every `R<n>` in `specs/<name>/requirements.md` must map to at least one concrete test in the project test suite. `reviewer` rejects the feature if coverage is missing.
 
-## Anti-patrones (no hacer)
+## Anti-Patterns (Do Not)
 
-- ❌ "He añadido la funcionalidad, debería funcionar." → falta evidencia ejecutable.
-- ❌ Test que solo comprueba que no lanza excepción → debe afirmar el resultado o efecto esperado.
-- ❌ Reportar tests en verde cuando `pnpm test` no existe o se ejecutó con filtros parciales sin aclararlo.
-- ❌ Marcar una feature como `done` con lint, typecheck o tests en rojo.
+- ❌ "I added the feature, it looks good." → missing executable evidence.
+- ❌ A test that only checks no exception was thrown → must assert concrete outputs or side effects.
+- ❌ Reporting tests green when not executed after the last edit or run with undeclared partial filters.
+- ❌ Marking a feature `done` while lint, typecheck, build, or tests fail.
 
-## Verificación final antes de cerrar una sesión
+## Final Verification Before Closing a Session
 
 ```bash
-pnpm lint && pnpm check-types
+pnpm lint && pnpm check-types && pnpm test && pnpm build
 ```
 
-(Y `pnpm test` una vez configurado el runner en el proyecto, además de `pnpm build` si hubo cambios de build/rutas/configuración.)
-
-Si alguna comprobación falla o falta la infraestructura necesaria para verificar un requisito, **no** marques nada como `done`. Documenta el bloqueo en `progress/current.md` y marca `"status": "blocked"` en `feature_list.json`.
+If any check fails or required test infrastructure is missing, **do not** mark the feature `done`. Document the blocker in `progress/current.md` and set `"status": "blocked"` in `feature_list.json`.

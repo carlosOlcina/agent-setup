@@ -1,51 +1,54 @@
-# Arquitectura — Qué significa "hacer un buen trabajo"
+# Architecture — What "Doing a Good Job" Means
 
-> Este documento define la estructura técnica y el estándar de calidad del repositorio.
-> Los agentes (`spec_author`, `implementer`, `reviewer`) consultan y evalúan contra este archivo.
-> Si adaptas este arnés a otro proyecto, actualiza este archivo (junto con `docs/conventions.md` y `docs/verification.md`) sin necesidad de tocar las definiciones genéricas de los agentes.
+> This document defines the technical structure and quality bar of the repository.
+> Agents (`spec_author`, `implementer`, `reviewer`) consult and evaluate work against this file.
+> When adapting this harness to another project, update this file (together with `docs/conventions.md` and `docs/verification.md`) without modifying generic agent definitions.
 
-## Estructura del monorepo (Olcina-IA)
+## Monorepo Structure (Olcina-IA)
 
-Este repositorio es un monorepo gestionado con **Turborepo** y **pnpm** (`package.json`, `pnpm-workspace.yaml`, `turbo.json`), preparado para despliegue multi-servicio en Vercel (`vercel.json`):
+This repository is a monorepo managed with **Turborepo** and **pnpm** (`package.json`, `pnpm-workspace.yaml`, `turbo.json`), configured for multi-service deployment on Vercel (`vercel.json`):
 
 ```text
 apps/
-├── web/                  # Aplicación web principal (Next.js 16 + React 19)
-└── docs/                 # Aplicación de documentación (Next.js 16 + React 19, bajo /docs)
+├── web/                  # Main web application (Next.js 16 + React 19)
+└── docs/                 # Documentation application (Next.js 16 + React 19, served under /docs)
 
 packages/
-├── ui/                   # @repo/ui — librería compartida de componentes React
-├── eslint-config/        # @repo/eslint-config — configuración compartida de ESLint
-└── typescript-config/    # @repo/typescript-config — base tsconfig compartida
+├── agent-conf/           # @repo/agent-conf — pure English static SDD templates and read-only agnostic validator
+├── ui/                   # @repo/ui — shared React component library
+├── eslint-config/        # @repo/eslint-config — shared ESLint configuration
+└── typescript-config/    # @repo/typescript-config — shared base tsconfig
 ```
 
-## Principios arquitectónicos
+## Architectural Principles
 
-1. **Orquestación de tareas con Turborepo y pnpm.**
-   Ejecuta las tareas del workspace mediante `pnpm` y `turbo` (ver comandos exactos en `docs/verification.md`), evitando invocar binarios locales sin pasar por los scripts definidos.
+1. **Task orchestration via Turborepo and pnpm.**
+   Run workspace tasks through `pnpm` and `turbo` (see exact commands in `docs/verification.md`), avoiding ad-hoc direct tool invocations that bypass defined scripts.
 
-2. **Separación clara entre aplicaciones y paquetes compartidos:**
-   - `apps/web/` y `apps/docs/` contienen rutas, páginas, layouts y lógica propia de cada app Next.js.
-   - `packages/ui/` aloja únicamente componentes y primitivas UI reutilizables entre aplicaciones, sin acoplarse a rutas ni secretos de una app concreta.
-   - `packages/eslint-config/` y `packages/typescript-config/` centralizan las reglas de tooling para todo el monorepo.
+2. **Clear separation between applications and shared packages:**
+   - `apps/web/` and `apps/docs/` contain routes, pages, layouts, and app-specific Next.js logic.
+   - `packages/agent-conf/` (`@repo/agent-conf`) is the single source of truth for the pure English 5-agent SDD harness (`leader`, `spec_author`, `implementer`, `reviewer`, `commiter`), dot-free platform folders (`agents/`, `claude/`, `codex/`), stack-agnostic base/adapter templates, and zero-runtime-dependency read-only validation library + CLI (`agent-conf-validate`). The `Olcina-IA` repository root dogfoods and synchronizes this canonical English SDD core.
+   - `packages/ui/` hosts only reusable UI components and primitives shared across apps, decoupled from app routes or secrets.
+   - `packages/eslint-config/` and `packages/typescript-config/` centralize shared tooling configurations across the monorepo.
 
-3. **Fronteras limpias de dependencias:**
-   - Las aplicaciones dependen de `packages/*`, nunca una app de otra app (`web` ↔ `docs`).
-   - No crear dependencias circulares entre paquetes del workspace.
+3. **Clean dependency boundaries:**
+   - Applications depend on `packages/*`, never on another application (`web` ↔ `docs`).
+   - `packages/agent-conf` introduces zero external runtime dependencies and never couples its SDD templates to `Olcina-IA` or any specific technology stack.
+   - Never introduce circular dependencies between workspace packages.
 
-4. **TypeScript estricto:**
-   - Mantener compatibilidad con `packages/typescript-config/base.json` (`strict: true`, `noUncheckedIndexedAccess: true`, `isolatedModules: true`).
-   - No usar `any`; tipar explícitamente las APIs públicas y props de componentes.
+4. **Strict TypeScript:**
+   - Maintain compatibility with `packages/typescript-config/base.json` (`strict: true`, `noUncheckedIndexedAccess: true`, `isolatedModules: true`).
+   - Never use `any`; explicitly type public APIs, contracts, and component props.
 
-5. **Enrutamiento y composición:**
-   - Respetar las reglas de composición de `vercel.json` (`/docs` y `/docs/(.*)` → `docs`, `/(.*)` → `web`).
+5. **Routing and composition:**
+   - Preserve the routing boundaries in `vercel.json` (`/docs` and `/docs/(.*)` → `docs`, `/(.*)` → `web`).
 
-6. **Verificación y testing:**
-   - Toda nueva funcionalidad con lógica de negocio o UI interactiva debe ir acompañada de pruebas automatizadas y mantener lint, typecheck y build en verde.
+6. **Verification and testing:**
+   - Every new feature with business logic, tooling, or interactive UI ships with automated tests (`pnpm test`) and keeps lint, typecheck, and build green.
 
-## Qué NO hacer
+## What Not To Do
 
-- ❌ No usar `console.log()` de debug ni para gestión de errores; usa manejo explícito de errores.
-- ❌ No duplicar componentes entre `apps/web` y `apps/docs` cuando pertenezcan a `@repo/ui`.
-- ❌ No introducir dependencias circulares entre workspaces.
-- ❌ No saltar la verificación de tipos, lint ni tests al cerrar una feature.
+- ❌ Do not use `console.log()` for debugging or error handling; use explicit typed error handling.
+- ❌ Do not duplicate UI components between `apps/web` and `apps/docs` when they belong in `@repo/ui`.
+- ❌ Do not introduce circular workspace dependencies or couple `packages/agent-conf` templates to `Olcina-IA` stack details.
+- ❌ Do not skip typecheck, lint, build, or automated tests when closing a feature.

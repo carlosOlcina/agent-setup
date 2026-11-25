@@ -1,34 +1,33 @@
-# Convenciones de código
+# Code Conventions
 
-> Homogeneidad extrema. La IA y el equipo trabajan mejor cuando todo el repositorio
-> sigue las mismas convenciones en todas partes.
+> Extreme consistency. Both humans and AI agents work faster and more reliably
+> when the entire repository follows the same conventions everywhere.
 
-## Idioma y comunicación
+## Language and Communication
 
-- **Código, identificadores, comentarios y mensajes de commit:** siempre en **inglés**.
-- **Documentación del arnés y specs (`AGENTS.md`, `docs/`, `specs/`, `progress/`):** español o el idioma acordado en el proyecto, manteniendo consistencia por archivo.
-- **Commits:** formato **Conventional Commits** (`<type>[scope]: <imperative description>`).
+- **Code, identifiers, comments, SDD templates, specs (`AGENTS.md`, `docs/`, `specs/`, `progress/`), and commit messages:** strictly in **English**.
+- **Commits:** **Conventional Commits** format (`<type>[scope]: <imperative description>`).
 
 ## TypeScript / JavaScript
 
-- **Configuración base:** `packages/typescript-config/base.json` (`ES2022`, `strict: true`, `noUncheckedIndexedAccess: true`, `isolatedModules: true`, `NodeNext`).
-- **Formateo:** Prettier (`pnpm format`) respetando las reglas del proyecto.
-- **Linting:** ESLint compartido (`@repo/eslint-config`) con `--max-warnings 0`. No deshabilitar reglas sin justificación explícita.
-- **Tipado:** explícito en funciones públicas, firmas y contratos compartidos. Prohibido `any` (usar `unknown` y narrowing cuando corresponda).
-- **Constantes:** extraer valores y cadenas repetidas o significativas en constantes con nombre descriptivo; evitar números y strings mágicos.
+- **Base configuration:** `packages/typescript-config/base.json` (`ES2022`, `strict: true`, `noUncheckedIndexedAccess: true`, `isolatedModules: true`, `NodeNext`).
+- **Formatting:** Prettier (`pnpm format`) respecting the repository's configured rules.
+- **Linting:** shared ESLint (`@repo/eslint-config`) with `--max-warnings 0`. Never disable rules without explicit justification.
+- **Typing:** explicit types on public functions, contracts, and shared interfaces. `any` is forbidden (use `unknown` and type narrowing where needed).
+- **Constants:** extract repeated or meaningful literals into descriptive named constants; avoid magic numbers and strings.
 
-## Convenciones de nombres
+## Naming Conventions
 
-| Elemento | Convención | Ejemplo |
+| Element | Convention | Example |
 |---|---|---|
-| Componentes React (`packages/ui`, `apps/*/`) | PascalCase (o kebab-case si sigue el patrón del directorio existente; mantener coherencia local) | `Button.tsx` / `button.tsx` |
-| Hooks React | `use*.ts` / `use*.tsx` | `useFeatureFlag.ts` |
-| Servicios / módulos de dominio | `*.service.ts` o kebab-case descriptivo | `auth.service.ts` |
-| Utilidades puras | `*.util.ts` o nombre descriptivo en kebab-case | `date-format.util.ts` |
-| Tipos / DTOs / Schemas | PascalCase para tipos, sufijo claro | `CreateUserSchema`, `UserProfile` |
-| Tests unitarios / integración | `*.test.ts`, `*.test.tsx` o `*.spec.ts` (coherente con el runner del workspace) | `button.test.tsx` |
+| React components (`packages/ui`, `apps/*/`) | PascalCase (or kebab-case matching local directory pattern; keep local consistency) | `Button.tsx` / `button.tsx` |
+| React hooks | `use*.ts` / `use*.tsx` | `useFeatureFlag.ts` |
+| Services / domain modules | `*.service.ts` or descriptive kebab-case | `auth.service.ts` |
+| Pure utilities | `*.util.ts` or descriptive kebab-case | `date-format.util.ts` |
+| Types / DTOs / schemas | PascalCase with clear suffix | `CreateUserSchema`, `UserProfile` |
+| Unit / integration tests | `*.test.ts`, `*.test.tsx`, or `*.spec.ts` (consistent with workspace runner) | `cli.test.ts` |
 
-## Estructura recomendada de un componente React
+## Recommended React Component Structure
 
 ```tsx
 import type { ReactNode } from "react";
@@ -50,11 +49,11 @@ export function Card({ title, children }: CardProps) {
 
 ## Tests
 
-- Toda función pública nueva, servicio o componente con comportamiento debe contar con tests concretos que validen tanto el camino feliz como casos de error o borde.
-- Nombres descriptivos que expresen comportamiento esperado (`should return error when input is invalid`).
-- Para features con `"sdd": true`, cada test debe ser trazable a un `R<n>` de `specs/<name>/requirements.md`.
+- Every new public function, service, or stateful component must have concrete tests validating both happy paths and relevant error or edge cases.
+- Use descriptive test names expressing expected behavior (`rejects invalid input with explicit error`).
+- For `"sdd": true` features, every test maps to an `R<n>` requirement in `specs/<name>/requirements.md`.
 
-## Manejo de errores
+## Error Handling
 
-- Validar entradas externas y valores potencialmente `null`/`undefined` en los límites del sistema.
-- Manejar los errores de forma explícita y consistente; nunca tragar excepciones en silencio ni exponer stack traces internos al usuario final.
+- Validate external inputs and potentially `null`/`undefined` values at system boundaries.
+- Handle errors explicitly and consistently; never swallow exceptions silently or expose internal stack traces to end users.
