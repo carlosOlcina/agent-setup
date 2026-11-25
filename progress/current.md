@@ -1,20 +1,20 @@
-# Sesión actual
+# Current Session
 
-> Este archivo se vacía al cerrar cada sesión y se mueve a `progress/history.md`.
-> Mientras trabajas, **mantenlo actualizado en tiempo real**, no al final.
+> This file is cleared at session close and its summary is appended to `progress/history.md`.
+> Keep it updated **in real time** while working, not at the end.
 
-- **Feature en curso:** _ninguna_
-- **Inicio:** _—_
-- **Agente:** _—_
+- **Active feature:** _(none)_
+- **Started:** _(pending)_
+- **Agent:** _(none)_
 
 ## Plan
 
-_—_
+_(No active tasks.)_
 
-## Bitácora
+## Log
 
-_—_
+_(No events recorded yet.)_
 
-## Próximo paso
+## Next Step
 
-_—_
+_(Waiting for next feature.)_
